@@ -1,0 +1,11 @@
+APP/
+├── README.md          (o que é, como instalar, como usar)
+├── docs/
+│   ├── ESPECIFICACAO.md
+│   ├── ARQUITETURA.md (como o código está organizado)
+│   ├── PROMPTS.md     (o prompt do tutor e as versões)
+│   └── DIARIO.md      (o que fez em cada dia e os problemas resolvidos)
+├── src/
+├── requirements.txt
+├── .env               (não versionar)
+└── .gitignore

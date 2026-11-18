@@ -1,0 +1,46 @@
+# Virtual environment
+.venv/
+venv/
+ENV/
+env/
+
+# Python cache and bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment variables (NEVER COMMIT)
+.env
+.env.local
+.env.*.local
+
+# IDE / Editor
+.vscode/
+.idea/
+
+# Testing & coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local databases and student data (Privacy)
+data/
+*.db
+*.sqlite3
+
+# Ambiente virtual
+.venv/
+
+# Segredos
+.env
+APIKEY.txt
+
+# Python
+__pycache__/
+*.pyc
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
