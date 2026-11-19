@@ -62,3 +62,49 @@ Este documento registra as atividades concluídas, decisões de arquitetura e pr
   - Tratamento resiliente de exceções (Rate limit 429, falha 5xx, timeout e perda de conexão com a internet) mantendo o loop ativo para novas tentativas.
   - Adição de `get_session_errors` em [**`src/storage/repository.py`**](file:///f:/Agent/src/storage/repository.py) e exportação em `src/storage/__init__.py`.
   - Alinhamento do modelo padrão oficial para `gemini-2.5-flash` em [**`src/config.py`**](file:///f:/Agent/src/config.py).
+
+---
+
+## [2026-11-18] - Conclusão da Fase 2: Servidor FastAPI e Gemini Live API (Áudio Bidirecional)
+
+- **Atividades e Implementações**:
+  - Adição de `fastapi` e `uvicorn` ao [**`requirements.txt`**](file:///f:/Agent/requirements.txt).
+  - Atualização de [**`src/config.py`**](file:///f:/Agent/src/config.py) e [**`.env.example`**](file:///f:/Agent/.env.example) com suporte a `GEMINI_LIVE_MODEL` (padrão: `gemini-3.8-live`) e `GEMINI_API_VERSION` (padrão: `v1beta`).
+  - Criação do prompt adaptado para voz em [**`src/agent/prompts.py`**](file:///f:/Agent/src/agent/prompts.py) (`VOICE_SYSTEM_PROMPT` e `get_voice_system_prompt()`), mantendo 80% conversa, 20% correção gentil, 1 erro por turno, imersão 100% em inglês e respostas concisas de 1 a 3 frases.
+  - Implementação do servidor FastAPI em [**`src/web/server.py`**](file:///f:/Agent/src/web/server.py):
+    - Endpoint WebSocket `/ws` para streaming bidirecional de áudio PCM.
+    - Conexão assíncrona com `google-genai` Live API (`types.LiveConnectConfig` com `AUDIO`, transcrição de entrada/saída ativadas e `http_options`).
+    - Chave da API protegida exclusivamente no servidor.
+    - Persistência automática das mensagens de cada turno no SQLite via [**`src/storage/repository.py`**](file:///f:/Agent/src/storage/repository.py).
+    - Tratamento de interrupção em tempo real (barge-in) e erros de cota (429 Rate Limit) com mensagens claras.
+  - Criação da interface em arquivo único [**`src/web/static/index.html`**](file:///f:/Agent/src/web/static/index.html):
+    - Captura de áudio do microfone com `getUserMedia` e `AudioWorklet` (resampling e conversão para PCM 16-bit 16 kHz).
+    - Reprodução contínua e sem cortes de áudio PCM 24 kHz recebido do Gemini.
+    - Botões Iniciar e Parar com controle de ciclo de vida.
+    - Exibição em tempo real das transcrições do aluno e do coach, com histórico visual sincronizado.
+
+---
+
+## [2026-11-19] - Refinamento e Resiliência da Live API no Servidor Web (`src/web/server.py`)
+
+- **Correções Aplicadas**:
+  - **(a) Parâmetro de envio**: substituído `send_realtime_input(media=...)` por `send_realtime_input(audio=types.Blob(data=pcm_data, mime_type="audio/pcm;rate=16000"))`.
+  - **(b) Continuidade multiturmo**: `live_session.receive()` envolvido em um laço `while True:`, garantindo que a sessão não finalize prematuramente após o primeiro turno de fala.
+  - **(c) Desconexão limpa do navegador**: adicionada checagem explícita `if msg.get("type") == "websocket.disconnect": break` para prevenir erros do Starlette de tentativa de leitura após fechamento.
+  - **(d) Telemetria e logs em tempo real**:
+    - Log do 1º bloco de áudio do navegador e contador acumulado de bytes a cada 50 blocos.
+    - Log do 1º chunk de áudio gerado pelo Gemini.
+    - Log imediato de cada transcrição parcial de entrada (aluno) e saída (coach) sem aguardar o fim do turno.
+
+---
+
+## [2026-11-19] - Calibração Pedagógica: Pacing Lento, Brevidade Radical e Repetição
+
+- **Problemas Endereçados**:
+  - Respostas longas demais do coach (monólogos que roubavam o tempo de fala do aluno).
+  - Áudio gerado em velocidade excessiva para o nível A2–B1.
+- **Ajustes no Prompt de Voz (`VOICE_SYSTEM_PROMPT` em `src/agent/prompts.py`)**:
+  - **Cadência de fala (*Pacing*)**: Instrução mandatória para falar de forma calma, lenta (~110–120 palavras por minuto) e com enunciação clara e micro-pausas respiratórias entre frases.
+  - **Brevidade Radical**: Teto estrito de 1 a 2 frases curtas (máximo 25 palavras no total por turno) e a regra de falar menos que o aluno.
+  - **Estrutura por Turno**: Reação curta (3-5 palavras) + correção sutil (se indispensável) + uma única pergunta aberta de seguimento.
+  - **Protocolo de Repetição e Ajuste de Nível**: Se o aluno pedir repetição (*"What?", "Can you repeat?"*), o coach repete a mesma frase mais devagar; se o aluno travar, simplifica para vocabulário A2 imediato.

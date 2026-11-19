@@ -21,6 +21,10 @@ DATABASE_PATH = DATA_DIR / "coach.db"
 # Modelo oficial ativo no Google AI Studio (alta disponibilidade e baixa latência)
 DEFAULT_MODEL = "gemini-2.5-flash"
 
+# Configurações para a Gemini Live API (áudio bidirecional em tempo real)
+DEFAULT_LIVE_MODEL = "gemini-3.8-live"
+DEFAULT_API_VERSION = "v1beta"
+
 
 def get_gemini_api_key() -> str:
     """Retorna a chave de API do Gemini após validar que ela existe e não é o placeholder.
@@ -41,3 +45,15 @@ def get_gemini_model() -> str:
     """Retorna o nome do modelo do Gemini configurado ou o padrão oficial."""
     model = os.getenv("GEMINI_MODEL", "").strip()
     return model if model else DEFAULT_MODEL
+
+
+def get_gemini_live_model() -> str:
+    """Retorna o modelo configurado para a Gemini Live API (padrão: gemini-3.8-live)."""
+    live_model = os.getenv("GEMINI_LIVE_MODEL", "").strip()
+    return live_model if live_model else DEFAULT_LIVE_MODEL
+
+
+def get_gemini_api_version() -> str:
+    """Retorna a versão da API configurada para a Live API (padrão: v1beta)."""
+    api_version = os.getenv("GEMINI_API_VERSION", "").strip()
+    return api_version if api_version else DEFAULT_API_VERSION

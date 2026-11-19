@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>English Speaking Coach - Live Audio</title>
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-card: #334155;
+      --accent: #38bdf8;
+      --accent-hover: #0ea5e9;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --coach-bubble: #1e3a5f;
+      --student-bubble: #1e293b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 24px 16px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    header {
+      text-align: center;
+      padding-bottom: 8px;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .status-card {
+      background-color: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    .status-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: var(--text-muted);
+      transition: background-color 0.3s ease;
+    }
+
+    .status-dot.connected {
+      background-color: var(--success);
+      box-shadow: 0 0 10px var(--success);
+    }
+
+    .status-dot.connecting {
+      background-color: var(--warning);
+      animation: pulse 1.2s infinite;
+    }
+
+    .status-dot.speaking {
+      background-color: var(--accent);
+      box-shadow: 0 0 12px var(--accent);
+      animation: pulse 0.8s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.15); }
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .btn-start {
+      background-color: var(--success);
+      color: #0f172a;
+    }
+
+    .btn-start:hover:not(:disabled) {
+      background-color: #16a34a;
+      transform: translateY(-1px);
+    }
+
+    .btn-stop {
+      background-color: var(--danger);
+      color: #ffffff;
+    }
+
+    .btn-stop:hover:not(:disabled) {
+      background-color: #dc2626;
+      transform: translateY(-1px);
+    }
+
+    .alert {
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .alert-error {
+      background-color: rgba(239, 68, 68, 0.15);
+      border: 1px solid var(--danger);
+      color: #fca5a5;
+    }
+
+    .live-preview {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    @media (max-width: 640px) {
+      .live-preview {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .preview-box {
+      background-color: var(--bg-secondary);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 16px;
+      min-height: 90px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .preview-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .preview-title.student { color: var(--accent); }
+    .preview-title.coach { color: #a78bfa; }
+
+    .preview-text {
+      font-size: 0.95rem;
+      color: var(--text-main);
+      line-height: 1.4;
+      flex-grow: 1;
+      font-style: italic;
+    }
+
+    .preview-text.empty {
+      color: var(--text-muted);
+      font-style: normal;
+    }
+
+    .history-card {
+      background-color: var(--bg-secondary);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      height: 380px;
+      overflow: hidden;
+    }
+
+    .history-header {
+      padding: 14px 20px;
+      background-color: rgba(0, 0, 0, 0.2);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .history-messages {
+      flex-grow: 1;
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .chat-bubble {
+      max-width: 82%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      line-height: 1.4;
+      word-wrap: break-word;
+    }
+
+    .bubble-student {
+      align-self: flex-end;
+      background-color: var(--student-bubble);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-bottom-right-radius: 4px;
+    }
+
+    .bubble-coach {
+      align-self: flex-start;
+      background-color: var(--coach-bubble);
+      border: 1px solid rgba(167, 139, 250, 0.25);
+      border-bottom-left-radius: 4px;
+    }
+
+    .bubble-role {
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .bubble-student .bubble-role { color: var(--accent); }
+    .bubble-coach .bubble-role { color: #c4b5fd; }
+
+    footer {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎙️ English Speaking Coach</h1>
+      <p>Pratique sua conversação em inglês com áudio em tempo real pelo microfone</p>
+    </header>
+
+    <!-- Barra de Status e Controles -->
+    <div class="status-card">
+      <div class="status-indicator">
+        <div id="statusDot" class="status-dot"></div>
+        <span id="statusText">Desconectado. Clique em Iniciar para praticar.</span>
+      </div>
+      <div class="controls">
+        <button id="btnStart" class="btn-start" onclick="startPractice()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+          Iniciar
+        </button>
+        <button id="btnStop" class="btn-stop" onclick="stopPractice()" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M6 6h12v12H6z"/>
+          </svg>
+          Parar
+        </button>
+      </div>
+    </div>
+
+    <!-- Banner de Alerta / Erros -->
+    <div id="alertBox" class="alert alert-error"></div>
+
+    <!-- Transcrições ao Vivo do Turno Atual -->
+    <div class="live-preview">
+      <div class="preview-box">
+        <div class="preview-title student">
+          <span>👤 Você (Aluno)</span>
+        </div>
+        <div id="studentLiveText" class="preview-text empty">Ouvindo seu microfone...</div>
+      </div>
+      <div class="preview-box">
+        <div class="preview-title coach">
+          <span>🤖 Coach</span>
+        </div>
+        <div id="coachLiveText" class="preview-text empty">Aguardando fala do aluno...</div>
+      </div>
+    </div>
+
+    <!-- Histórico de Conversação Gravada na Sessão -->
+    <div class="history-card">
+      <div class="history-header">Histórico da Sessão (Persistido no SQLite)</div>
+      <div id="historyMessages" class="history-messages"></div>
+    </div>
+
+    <footer>
+      English Speaking Coach • Gemini Live API • 100% imersão em inglês
+    </footer>
+  </div>
+
+  <script>
+    // ---------------------------------------------------------------------------
+    // Variáveis Globais de Estado
+    // ---------------------------------------------------------------------------
+    let websocket = null;
+    let inputAudioCtx = null;
+    let micStream = null;
+    let micSourceNode = null;
+    let audioWorkletNode = null;
+
+    let playbackAudioCtx = null;
+    let nextPlayTime = 0;
+    let activeAudioSources = [];
+
+    let currentStudentTurn = '';
+    let currentCoachTurn = '';
+
+    const statusDot = document.getElementById('statusDot');
+    const statusText = document.getElementById('statusText');
+    const btnStart = document.getElementById('btnStart');
+    const btnStop = document.getElementById('btnStop');
+    const alertBox = document.getElementById('alertBox');
+    const studentLiveText = document.getElementById('studentLiveText');
+    const coachLiveText = document.getElementById('coachLiveText');
+    const historyMessages = document.getElementById('historyMessages');
+
+    function showAlert(message) {
+      alertBox.textContent = message;
+      alertBox.style.display = 'block';
+    }
+
+    function hideAlert() {
+      alertBox.style.display = 'none';
+      alertBox.textContent = '';
+    }
+
+    function setStatus(state, message) {
+      statusDot.className = 'status-dot ' + state;
+      statusText.textContent = message;
+    }
+
+    // ---------------------------------------------------------------------------
+    // Gerenciamento de Reprodução de Áudio (PCM 24 kHz)
+    // ---------------------------------------------------------------------------
+    function initPlaybackAudio() {
+      if (!playbackAudioCtx || playbackAudioCtx.state === 'closed') {
+        playbackAudioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 24000 });
+      }
+      if (playbackAudioCtx.state === 'suspended') {
+        playbackAudioCtx.resume();
+      }
+      nextPlayTime = playbackAudioCtx.currentTime;
+    }
+
+    function playAudioChunk(arrayBuffer) {
+      initPlaybackAudio();
+
+      const int16 = new Int16Array(arrayBuffer);
+      if (int16.length === 0) return;
+
+      // Converte PCM 16-bit inteiro para Float32 [-1.0, 1.0]
+      const float32 = new Float32Array(int16.length);
+      for (let i = 0; i < int16.length; i++) {
+        float32[i] = int16[i] / 32768.0;
+      }
+
+      const audioBuffer = playbackAudioCtx.createBuffer(1, float32.length, 24000);
+      audioBuffer.getChannelData(0).set(float32);
+
+      const source = playbackAudioCtx.createBufferSource();
+      source.buffer = audioBuffer;
+      source.connect(playbackAudioCtx.destination);
+
+      const now = playbackAudioCtx.currentTime;
+      if (nextPlayTime < now) {
+        nextPlayTime = now;
+      }
+
+      source.start(nextPlayTime);
+      nextPlayTime += audioBuffer.duration;
+      activeAudioSources.push(source);
+
+      source.onended = () => {
+        const idx = activeAudioSources.indexOf(source);
+        if (idx !== -1) activeAudioSources.splice(idx, 1);
+      };
+    }
+
+    function stopAllAudioPlayback() {
+      for (const src of activeAudioSources) {
+        try { src.stop(); } catch (e) {}
+      }
+      activeAudioSources = [];
+      if (playbackAudioCtx) {
+        nextPlayTime = playbackAudioCtx.currentTime;
+      }
+    }
+
+    // ---------------------------------------------------------------------------
+    // Conversão e Downsampling de Áudio (Entrada para PCM 16 kHz 16-bit)
+    // ---------------------------------------------------------------------------
+    function downsampleTo16k(inputData, inputSampleRate) {
+      if (inputSampleRate === 16000) return inputData;
+      const ratio = inputSampleRate / 16000;
+      const newLength = Math.round(inputData.length / ratio);
+      const result = new Float32Array(newLength);
+      let offsetResult = 0;
+      let offsetBuffer = 0;
+
+      while (offsetResult < result.length) {
+        const nextOffsetBuffer = Math.round((offsetResult + 1) * ratio);
+        let accum = 0;
+        let count = 0;
+        for (let i = offsetBuffer; i < nextOffsetBuffer && i < inputData.length; i++) {
+          accum += inputData[i];
+          count++;
+        }
+        result[offsetResult] = count > 0 ? accum / count : 0;
+        offsetResult++;
+        offsetBuffer = nextOffsetBuffer;
+      }
+      return result;
+    }
+
+    function floatTo16BitPCM(float32Array) {
+      const buffer = new ArrayBuffer(float32Array.length * 2);
+      const view = new DataView(buffer);
+      for (let i = 0; i < float32Array.length; i++) {
+        const s = Math.max(-1, Math.min(1, float32Array[i]));
+        view.setInt16(i * 2, s < 0 ? s * 0x8000 : s * 0x7FFF, true); // Little endian
+      }
+      return buffer;
+    }
+
+    // ---------------------------------------------------------------------------
+    // Captura de Microfone com AudioWorklet
+    // ---------------------------------------------------------------------------
+    async function startMicrophone() {
+      // 1. Solicita permissão do microfone
+      micStream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          channelCount: 1,
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        }
+      });
+
+      // 2. AudioContext de captura
+      inputAudioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+      if (inputAudioCtx.state === 'suspended') {
+        await inputAudioCtx.resume();
+      }
+
+      // 3. Registra AudioWorkletProcessor em módulo inline via Blob
+      const workletCode = `
+        class AudioRecorderProcessor extends AudioWorkletProcessor {
+          process(inputs) {
+            const input = inputs[0];
+            if (input && input.length > 0) {
+              const channelData = input[0];
+              // Envia array de Float32Array para a thread principal
+              this.port.postMessage(channelData);
+            }
+            return true;
+          }
+        }
+        registerProcessor('audio-recorder-processor', AudioRecorderProcessor);
+      `;
+
+      const workletBlob = new Blob([workletCode], { type: 'application/javascript' });
+      const workletUrl = URL.createObjectURL(workletBlob);
+      await inputAudioCtx.audioWorklet.addModule(workletUrl);
+      URL.revokeObjectURL(workletUrl);
+
+      // 4. Conecta microfone ao nó worklet
+      micSourceNode = inputAudioCtx.createMediaStreamSource(micStream);
+      audioWorkletNode = new AudioWorkletNode(inputAudioCtx, 'audio-recorder-processor');
+
+      audioWorkletNode.port.onmessage = (event) => {
+        const floatData = event.data;
+        if (!websocket || websocket.readyState !== WebSocket.OPEN) return;
+
+        // Downsample para 16kHz se o AudioContext rodar em outra taxa nativa
+        const downsampled = downsampleTo16k(floatData, inputAudioCtx.sampleRate);
+        const pcm16Buffer = floatTo16BitPCM(downsampled);
+
+        // Envia o chunk binário PCM 16-bit 16kHz diretamente pelo WebSocket
+        websocket.send(pcm16Buffer);
+      };
+
+      micSourceNode.connect(audioWorkletNode);
+    }
+
+    function stopMicrophone() {
+      if (audioWorkletNode) {
+        audioWorkletNode.disconnect();
+        audioWorkletNode = null;
+      }
+      if (micSourceNode) {
+        micSourceNode.disconnect();
+        micSourceNode = null;
+      }
+      if (micStream) {
+        micStream.getTracks().forEach(track => track.stop());
+        micStream = null;
+      }
+      if (inputAudioCtx && inputAudioCtx.state !== 'closed') {
+        inputAudioCtx.close();
+        inputAudioCtx = null;
+      }
+    }
+
+    // ---------------------------------------------------------------------------
+    // Interface e Histórico de Conversação
+    // ---------------------------------------------------------------------------
+    function appendChatBubble(role, text) {
+      if (!text || !text.trim()) return;
+
+      const bubble = document.createElement('div');
+      bubble.className = `chat-bubble bubble-${role}`;
+
+      const roleLabel = document.createElement('div');
+      roleLabel.className = 'bubble-role';
+      roleLabel.textContent = role === 'student' ? 'Você (Aluno)' : 'Coach';
+
+      const content = document.createElement('div');
+      content.textContent = text.trim();
+
+      bubble.appendChild(roleLabel);
+      bubble.appendChild(content);
+      historyMessages.appendChild(bubble);
+      historyMessages.scrollTop = historyMessages.scrollHeight;
+    }
+
+    // ---------------------------------------------------------------------------
+    // Controle de Sessão (Iniciar e Parar)
+    // ---------------------------------------------------------------------------
+    async function startPractice() {
+      hideAlert();
+      btnStart.disabled = true;
+      setStatus('connecting', 'Conectando ao servidor...');
+
+      try {
+        // Inicializa áudio de reprodução com o clique do usuário
+        initPlaybackAudio();
+
+        // Conecta ao WebSocket do servidor FastAPI
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}/ws`;
+        websocket = new WebSocket(wsUrl);
+        websocket.binaryType = 'arraybuffer';
+
+        websocket.onopen = async () => {
+          setStatus('connecting', 'Iniciando microfone e sessão Gemini Live...');
+          try {
+            await startMicrophone();
+            btnStop.disabled = false;
+            setStatus('connected', 'Conectado! Pode falar em inglês.');
+            studentLiveText.textContent = 'Ouvindo... Fale com o Coach!';
+            studentLiveText.classList.remove('empty');
+          } catch (micErr) {
+            showAlert('Erro ao acessar o microfone: ' + micErr.message);
+            stopPractice();
+          }
+        };
+
+        websocket.onmessage = (event) => {
+          // 1. Mensagens Binárias: Áudio PCM 24kHz do Coach
+          if (event.data instanceof ArrayBuffer) {
+            setStatus('speaking', 'Coach falando...');
+            playAudioChunk(event.data);
+            return;
+          }
+
+          // 2. Mensagens JSON de texto: Transcrições, status e erros
+          try {
+            const data = JSON.parse(event.data);
+
+            if (data.type === 'session_ready') {
+              setStatus('connected', 'Sessão pronta. Pode falar em inglês!');
+            }
+            else if (data.type === 'interrupted') {
+              // O aluno interrompeu o coach: interrompe reprodução de áudio imediatamente
+              stopAllAudioPlayback();
+              setStatus('connected', 'Você interrompeu o Coach. Ouvindo você...');
+            }
+            else if (data.type === 'student_transcript') {
+              currentStudentTurn += data.text;
+              studentLiveText.textContent = currentStudentTurn;
+              studentLiveText.classList.remove('empty');
+            }
+            else if (data.type === 'coach_transcript') {
+              currentCoachTurn += data.text;
+              coachLiveText.textContent = currentCoachTurn;
+              coachLiveText.classList.remove('empty');
+            }
+            else if (data.type === 'turn_complete') {
+              // Final do turno: adiciona ao histórico visual e reseta caixas ao vivo
+              if (currentStudentTurn.trim()) {
+                appendChatBubble('student', currentStudentTurn);
+              }
+              if (currentCoachTurn.trim()) {
+                appendChatBubble('coach', currentCoachTurn);
+              }
+
+              currentStudentTurn = '';
+              currentCoachTurn = '';
+              studentLiveText.textContent = 'Ouvindo... Fale sua próxima frase!';
+              studentLiveText.classList.remove('empty');
+              coachLiveText.textContent = '';
+              coachLiveText.classList.add('empty');
+              setStatus('connected', 'Conectado! Pode falar em inglês.');
+            }
+            else if (data.type === 'error') {
+              showAlert(data.message);
+              setStatus('', 'Erro na sessão.');
+              stopPractice();
+            }
+            else if (data.type === 'session_ended') {
+              setStatus('', 'Sessão finalizada com sucesso.');
+            }
+          } catch (parseErr) {
+            console.error('Erro ao processar mensagem JSON:', parseErr);
+          }
+        };
+
+        websocket.onerror = (err) => {
+          console.error('Erro no WebSocket:', err);
+          showAlert('Erro na conexão WebSocket com o servidor.');
+          stopPractice();
+        };
+
+        websocket.onclose = () => {
+          stopMicrophone();
+          stopAllAudioPlayback();
+          btnStart.disabled = false;
+          btnStop.disabled = true;
+          setStatus('', 'Desconectado.');
+        };
+
+      } catch (err) {
+        console.error(err);
+        showAlert('Erro ao iniciar prática: ' + err.message);
+        btnStart.disabled = false;
+        btnStop.disabled = true;
+        setStatus('', 'Desconectado.');
+      }
+    }
+
+    function stopPractice() {
+      btnStop.disabled = true;
+      setStatus('connecting', 'Finalizando sessão...');
+
+      // Envia sinal de parada para o servidor
+      if (websocket && websocket.readyState === WebSocket.OPEN) {
+        websocket.send(JSON.stringify({ action: 'stop' }));
+        setTimeout(() => {
+          if (websocket) websocket.close();
+        }, 500);
+      } else {
+        if (websocket) websocket.close();
+      }
+
+      stopMicrophone();
+      stopAllAudioPlayback();
+
+      // Salva qualquer transcrição em andamento no histórico visual
+      if (currentStudentTurn.trim()) {
+        appendChatBubble('student', currentStudentTurn);
+        currentStudentTurn = '';
+      }
+      if (currentCoachTurn.trim()) {
+        appendChatBubble('coach', currentCoachTurn);
+        currentCoachTurn = '';
+      }
+
+      studentLiveText.textContent = 'Sessão finalizada.';
+      studentLiveText.classList.add('empty');
+      coachLiveText.textContent = '';
+      coachLiveText.classList.add('empty');
+
+      btnStart.disabled = false;
+      setStatus('', 'Sessão encerrada e salva.');
+    }
+  </script>
+</body>
+</html>
