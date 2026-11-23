@@ -231,3 +231,6 @@ Este projeto é desenvolvido com foco no ensino e capacitação tecnológica con
 **Propriedade e Desenvolvimento:**  
 **MHMF Technologies**  
 *Transformando o aprendizado de idiomas através da Inteligência Artificial em tempo real.*
+
+Licença
+Este projeto está licenciado sob a licença MIT. Consulte o arquivo LICENSE para mais detalhes.
