@@ -144,3 +144,39 @@ Este documento registra as atividades concluídas, decisões de arquitetura e pr
   - Atualização completa do `README.md` com tom corporativo e técnico, diagramas em ASCII do pipeline de áudio, instruções completas para Windows e Linux/WSL (tratando restrições do PEP 668) e roadmap.
   - Adição de regras no `.gitignore` para ignorar arquivos temporários de backup (`*.bak`, `*.backup.*`) e ambientes Linux (`.venv_wsl/`).
 
+---
+
+## [2026-11-23] - Governança Open Source, Conectividade em Rede Local (WSL2/LAN) e Validação Mobile (Android)
+
+- **1. Governança e Publicação da Licença MIT**:
+  - Inclusão oficial do arquivo `LICENSE` com a licença MIT padrão de código aberto (Copyright (c) 2026 Marcio Henare).
+  - Governança de documentação consolidada e sincronização bem-sucedida do repositório remoto no GitHub (`https://github.com/HenareMarcio/EnlishCoachA2-B1.git`), com envio de todos os commits pendentes na branch `main`.
+
+- **2. Conectividade de Rede Local entre WSL2, Windows Host e Dispositivos Externos**:
+  - **Desafio Arquitetural**: O WSL2 opera em uma máquina virtual Hyper-V isolada sob NAT com endereço IP próprio (ex: `172.x.x.x`), impedindo que outros dispositivos da rede Wi-Fi local (como smartphones) alcancem a porta `8000` diretamente pelo IP do Windows (`192.168.x.x`).
+  - **Solução Técnica Implementada**:
+    1. **Encaminhamento de Portas (*Portproxy*)**: Configuração do `netsh` no Windows para rotear conexões externas para a sub-rede do WSL2:
+       ```cmd
+       netsh interface portproxy add v4tov4 listenport=8000 listenaddress=0.0.0.0 connectport=8000 connectaddress=<IP_DO_WSL2>
+       ```
+    2. **Firewall do Windows**: Criação de regra de entrada no Windows Defender Firewall permitindo tráfego TCP na porta 8000.
+    3. **Binding no Uvicorn**: Servidor FastAPI configurado para vincular em `0.0.0.0`, permitindo conexões em todas as interfaces de rede física e virtual.
+  - **Resultado**: O sistema passou a ser acessado perfeitamente por outros dispositivos conectados na mesma rede local.
+
+- **3. Validação do Acesso Mobile em Dispositivo Android Real**:
+  - **Frontend Responsivo**: Interface web Sci-Fi carregada e renderizada com fidelidade visual no navegador de um smartphone Android real.
+  - **Backend Operacional**: Backend FastAPI operando de forma estável no ambiente WSL2 atendendo requisições do dispositivo móvel.
+  - **WebSocket, SQLite e Live API**: Conexão WebSocket estabelecida com sucesso; sessões e logs gravados corretamente no banco SQLite; integração com a Gemini Live API inicializada normalmente (`session_ready`).
+
+- **4. Bloqueador Atualmente Aberto (Em Investigação - Captura de Microfone no Android)**:
+  - **Sintoma Observado**: Ao clicar em `▶ START` no navegador do celular Android, o fluxo é interrompido com o erro de alerta:
+    ```text
+    "Cannot read properties of undefined (reading 'getUserMedia')"
+    ```
+  - **Diagnóstico Preliminar**:
+    - O objeto `navigator.mediaDevices` é avaliado como `undefined` no navegador mobile (Chromium/Android).
+    - A causa raiz primária é a política mandatória de **Contexto Seguro (*Secure Context*)** da W3C: navegadores modernos desabilitam APIs de captura de hardware sensíveis (`getUserMedia`) em origens HTTP não criptografadas que não sejam `localhost`. Como o acesso ocorre via IP de rede local (`http://192.168.x.x:8000`), o navegador bloqueia a API intencionalmente por segurança.
+  - **Próximos Passos Prioritários**:
+    - Configurar terminação TLS/HTTPS local (via certificados confiáveis com `mkcert` ou túnel HTTPS com `Cloudflare Tunnels` / `ngrok`) ou configurar flags de desenvolvimento temporárias no navegador Android (`chrome://flags/#unsafely-treat-insecure-origin-as-secure`) para validar a conversa speech-to-speech completa no celular.
+
+

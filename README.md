@@ -14,6 +14,7 @@
   <img src="https://img.shields.io/badge/Google%20Gemini-Live%20API-4285F4?style=for-the-badge&logo=google&logoColor=white" alt="Gemini Live API" />
   <img src="https://img.shields.io/badge/Web%20Audio-24kHz%20PCM-00E5FF?style=for-the-badge" alt="Web Audio API" />
   <img src="https://img.shields.io/badge/SQLite-Local%20Storage-003B57?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite" />
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge" alt="MIT License" />
 </p>
 
 ---
@@ -219,8 +220,10 @@ pytest tests/ -v
 - [x] **Fase 1 (Concluída):** Agente de conversação via terminal (texto) com persistência SQLite e categorização de erros.
 - [x] **Fase 2 (Concluída):** Conversação falada em tempo real com Gemini Live API, streaming PCM bidirecional e interface Sci-Fi.
 - [x] **Fase 2.1 (Concluída):** Estabilização de áudio sem sobreposição de pacotes e regras pedagógicas de acompanhamento de assunto (*thread continuity*).
-- [ ] **Fase 3 (Em desenvolvimento):** Análise e métricas avançadas de pronúncia e relatórios de progresso do aluno.
-- [ ] **Fase 4 (Planejada):** Suporte multiplataforma (aplicativo mobile nativo para Android).
+- [x] **Fase 3.1 (Concluída):** Conectividade em rede local (WSL2 portproxy + firewall) e validação da interface web e WebSocket em smartphone Android real.
+- [ ] **Fase 3.2 (Prioritária / Em Investigação):** Resolução da captura de microfone no Android via Contexto Seguro (HTTPS / TLS) para validação da conversa speech-to-speech completa no celular.
+- [ ] **Fase 4 (Planejada):** Análise e métricas avançadas de pronúncia e relatórios de progresso do aluno.
+- [ ] **Fase 5 (Planejada):** Suporte multiplataforma (aplicativo mobile nativo para Android).
 
 ---
 
@@ -232,5 +235,5 @@ Este projeto é desenvolvido com foco no ensino e capacitação tecnológica con
 **MHMF Technologies**  
 *Transformando o aprendizado de idiomas através da Inteligência Artificial em tempo real.*
 
-Licença
-Este projeto está licenciado sob a licença MIT. Consulte o arquivo LICENSE para mais detalhes.
+**Licença:**  
+Distribuído sob a licença **MIT**. Consulte o arquivo [LICENSE](LICENSE) para obter mais informações.

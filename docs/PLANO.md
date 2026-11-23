@@ -173,24 +173,39 @@ erDiagram
 
 ---
 
-### Fase 2: Integração de Áudio Nativo (Speech-to-Speech)
-- Conexão com a **Gemini Live API** (áudio bidirecional em tempo real).
-- Captura de microfone e reprodução de áudio contínuo no Windows.
-- Sincronização do áudio com a gravação de mensagens e erros no SQLite.
+### Fase 2: Integração de Áudio Nativo (Speech-to-Speech) - ✅ CONCLUÍDA
+- Conexão bidirecional assíncrona com a **Gemini Live API** via WebSockets no FastAPI.
+- Streaming contínuo de áudio PCM (16 kHz entrada / 24 kHz saída).
+- Interface web Sci-Fi interativa em arquivo único (`src/web/static/index.html`) com controle único `START / STOP` e indicador de pensamento (`● ● ●`).
+- Jitter buffer de áudio e enfileiramento sequencial eliminando sobreposição de pacotes.
+- Persistência automática das mensagens e sessões de voz no banco SQLite.
+- Regras pedagógicas de acompanhamento do fio condutor (*thread continuity*) e tratamento do *"mais"* brasileiro.
 
 ---
 
-### Fase 3: Interface Gráfica (Streamlit)
-- Interface web moderna desenvolvida em Streamlit.
-- Histórico visual de chat e reprodutor de áudio.
-- Painel analítico do aluno alimentado por consultas SQL na tabela `errors`.
-- Seleção de tópicos de conversa e metas de estudo.
+### Fase 3: Multi-dispositivo, Rede Local e Validação Mobile - 🔄 EM ANDAMENTO
+
+#### 3.1. Conectividade de Rede Local e WSL2 (✅ Concluída)
+- Resolução do isolamento de rede do WSL2 através de `netsh interface portproxy` no Windows.
+- Liberação de regras de entrada no Windows Defender Firewall (porta 8000 TCP).
+- Uvicorn configurado em `0.0.0.0`, permitindo conexões diretas via endereço IP local da máquina.
+
+#### 3.2. Validação em Dispositivo Móvel Real (Android) (🔄 Em Andamento)
+- **Status Positivo**:
+  - Acesso ao frontend web Sci-Fi via Wi-Fi validado com sucesso a partir de smartphone Android real.
+  - Conexão WebSocket bidirecional estabelecida normalmente.
+  - Backend FastAPI no WSL2 responsivo e integrado ao SQLite.
+  - Gemini Live API operacional durante os testes móveis.
+- **Bloqueador Atual (Em Investigação)**:
+  - Falha na chamada da API de captura de microfone no Android: `"Cannot read properties of undefined (reading 'getUserMedia')"`.
+  - Diagnóstico: Exigência de **Contexto Seguro (*Secure Context*)** pelo navegador Chromium móvel, que desativa `navigator.mediaDevices` quando acessado via protocolo HTTP por IP de rede local.
+- **Próxima Etapa Prioritária**:
+  - Implementar terminação TLS/HTTPS segura (certificados locais com `mkcert` ou túnel HTTPS seguro) para restaurar a API `getUserMedia` no Android e validar a conversação completa speech-to-speech em dispositivo móvel.
 
 ---
 
-## 8. Critérios de Conclusão da Fase 1
+## 8. Status e Critérios de Conclusão
 
-1. Dependências instaladas e `src/config.py` validado.
-2. Banco SQLite `data/coach.db` operacional com testes automatizados de CRUD.
-3. Chat no terminal funcional, com respostas fluidas 100% em inglês e detecção silenciosa de erros no SQLite.
-4. Diário de bordo `docs/DIARIO.md` e `docs/PROMPTS.md` documentados.
+1. **Fase 1 (CLI & Persistência)**: ✅ 100% Concluída e testada.
+2. **Fase 2 (Voz em Tempo Real & Web)**: ✅ 100% Concluída com Gemini Live API e UI Sci-Fi.
+3. **Fase 3 (Acesso Mobile & Multi-dispositivo)**: 🔄 Acesso web e WebSocket validados no Android; resolução da captura de áudio (HTTPS / Secure Context) definida como prioridade imediata.
