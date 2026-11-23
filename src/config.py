@@ -24,6 +24,7 @@ DEFAULT_MODEL = "gemini-2.5-flash"
 # Configurações para a Gemini Live API (áudio bidirecional em tempo real)
 DEFAULT_LIVE_MODEL = "gemini-3.8-live"
 DEFAULT_API_VERSION = "v1beta"
+DEFAULT_VOICE_NAME = "Puck"
 
 
 def get_gemini_api_key() -> str:
@@ -57,3 +58,10 @@ def get_gemini_api_version() -> str:
     """Retorna a versão da API configurada para a Live API (padrão: v1beta)."""
     api_version = os.getenv("GEMINI_API_VERSION", "").strip()
     return api_version if api_version else DEFAULT_API_VERSION
+
+
+def get_gemini_voice_name() -> str:
+    """Retorna a voz configurada para a Live API (padrão: Puck)."""
+    voice = os.getenv("GEMINI_VOICE_NAME", "").strip()
+    return voice if voice else DEFAULT_VOICE_NAME
+

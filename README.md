@@ -1,334 +1,233 @@
-# English Speaking Coach
+# English Speaking Coach AI
 
-**Um coach de conversação em inglês por voz, criado por um brasileiro para brasileiros.**
+<p align="center">
+  <img src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png" width="100" alt="English Speaking Coach Logo" />
+</p>
 
-O English Speaking Coach é um agente de IA que conversa em inglês, **falando e ouvindo em tempo real**, para que o aluno perca a vergonha de falar. Ele não ensina regras: ele cria o ambiente seguro e constante de que o aluno precisa para praticar, corrige com discrição e acompanha a evolução ao longo do tempo.
+<p align="center">
+  <strong>Agente conversacional inteligente de voz em tempo real para desenvolvimento de fluência e confiança em língua inglesa.</strong>
+</p>
 
-> **Status:** a base por texto (Fase 1) está concluída e em validação. O núcleo do produto, a conversa por voz (speech-to-speech), está em desenvolvimento. Veja o [Roadmap](#roadmap).
-
----
-
-## Sumário
-
-- [O problema](#o-problema)
-- [A proposta](#a-proposta)
-- [Diferenciais](#diferenciais)
-- [Como o coach se comporta](#como-o-coach-se-comporta)
-- [Estado atual](#estado-atual)
-- [Arquitetura](#arquitetura)
-- [Estrutura do projeto](#estrutura-do-projeto)
-- [Tecnologias](#tecnologias)
-- [Como executar](#como-executar)
-- [Testes](#testes)
-- [Custo e plano gratuito](#custo-e-plano-gratuito)
-- [Privacidade e segurança](#privacidade-e-segurança)
-- [Visão para Android](#visão-para-android)
-- [Roadmap](#roadmap)
-- [Como contribuir](#como-contribuir)
-- [Aviso](#aviso)
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.10+" />
+  <img src="https://img.shields.io/badge/FastAPI-0.110+-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
+  <img src="https://img.shields.io/badge/Google%20Gemini-Live%20API-4285F4?style=for-the-badge&logo=google&logoColor=white" alt="Gemini Live API" />
+  <img src="https://img.shields.io/badge/Web%20Audio-24kHz%20PCM-00E5FF?style=for-the-badge" alt="Web Audio API" />
+  <img src="https://img.shields.io/badge/SQLite-Local%20Storage-003B57?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite" />
+</p>
 
 ---
 
-## O problema
+## 📌 Visão Geral
 
-Para o brasileiro, o maior obstáculo no aprendizado de inglês não é a falta de conteúdo, mas a falta de **prática de fala segura e frequente**. É comum que o estudante:
+O **English Speaking Coach** é uma plataforma desenvolvida para superar a maior barreira no aprendizado de inglês de estudantes brasileiros (níveis A2–B1): a **insegurança ao falar** e a escassez de prática conversacional realista.
 
-- tenha medo de errar e de se expor diante de outra pessoa;
-- não tenha com quem praticar no dia a dia;
-- fique preso à teoria e a exercícios repetitivos;
-- consiga ler e entender inglês, mas trave na hora de falar.
+Diferente de chatbots tradicionais baseados em turnos de texto ou avaliadores gramaticais rígidos, o coach atua como um **verdadeiro parceiro de conversa falada**:
+- Comunicação bidirecional contínua de áudio em tempo real (*speech-to-speech*).
+- Foco em **fluência, manutenção de assunto (*thread continuity*) e comunicação natural**.
+- Correção gentil e pontual (*recasting*), sem interromper o raciocínio nem ministrar palestras teóricas.
+- Imersão total em inglês com sensibilidade aos padrões de dúvida de aprendizes falantes de português.
 
-## A proposta
+> **Desenvolvido por:** **MHMF Technologies**
 
-Substituir o ciclo "estudar regra → fazer exercício" por um ciclo **"falar → receber um ajuste → continuar falando"**.
+---
 
-O aluno conversa em voz alta com um interlocutor paciente, que não julga, está disponível a qualquer hora e nunca se cansa. O foco é a **fluência e a confiança**. A precisão gramatical vem como consequência da prática constante, não como pré-requisito dela.
+## 🚀 Principais Atualizações Recentes
 
-## Diferenciais
+### 1. Interface Web Sci-Fi com Glassmorphism
+- **Design Futurista:** Paleta temática espacial com efeitos neon ciano (`#00e5ff`) e cartões em vidro translúcido (*glassmorphism*).
+- **Controle Unificado:** Botão único inteligente `▶ START` / `■ STOP` com transições de estado visual.
+- **Indicador de Pensamento:** Feedback em tempo real (`● ● ●`) durante a escuta e processamento da fala do aluno.
+- **Avatar Dinâmico:** Humanoide animado flutuante para uma experiência mais acolhedora.
 
-**Voz como centro da experiência.** O produto é construído em torno da conversa falada em tempo real, o formato que mais se aproxima de uma situação real e o que mais ajuda a vencer a vergonha de falar.
+### 2. Motor de Voz em Tempo Real de Baixa Latência (Gemini Live API)
+- **Streaming Bidirecional:** Captura de microfone via `AudioWorklet` (PCM 16 kHz) e reprodução contínua (PCM 24 kHz) sem sobreposição ou atropelo de áudio.
+- **Agendamento com Jitter Buffer:** Mecanismo de enfileiramento na `Web Audio API` que garante reprodução sequencial e suave, eliminando qualquer aceleração ou sobreposição de pacotes.
+- **VAD Otimizado:** Detecção natural de atividade de voz sem silêncio artificial forçado, reduzindo drasticamente o tempo de resposta (*Time-to-First-Audio*).
+- **Seleção de Vozes:** Suporte flexível a vozes do Google AI Studio (`Puck`, `Aoede`, `Charon`, etc.) via configuração de ambiente.
 
-**Conversa primeiro, correção depois.** Cerca de 80% da interação é conversa natural; cerca de 20% é correção. O aluno passa mais tempo falando e menos tempo estudando regras.
+### 3. Inteligência Pedagógica e Manutenção de Contexto
+- **Parceiro vs. Chatbot:** O coach é instruído a nunca inventar perguntas aleatórias ou mudar de tema sem motivo. Ele escuta, valida o que o aluno disse e aprofunda o assunto em andamento.
+- **Tratamento Inteligente de Dúvidas ("Mais"):** Identificação de expressões típicas brasileiras de pedido de repetição (*"mais"*, *"again"*, *"repeat"*, *"what?"*, *"sorry?"*, *"como?"*). O coach repara a frase em inglês mais simples e oferece alternativas claras sem trocar de assunto.
+- **Rótulos Objetivos:** Diálogo estruturado no histórico entre `ME` (aluno) e `COACH`.
 
-**Um erro por vez.** A cada turno, o coach escolhe o ajuste mais relevante e o apresenta de forma gentil, sem sobrecarregar o aluno nem quebrar o ritmo do diálogo.
+### 4. Arquitetura de Servidor FastAPI e Persistência
+- **Lifespan Context Manager:** Gerenciamento de ciclo de vida moderno substituindo eventos depreciados.
+- **Tratamento Robusto de Concorrência:** Tratamento de exceções assíncronas em segundo plano, evitando falhas silenciosas na comunicação com o WebSocket.
+- **Endpoint de Saúde:** Diagnóstico rápido em `/api/health` para verificação de chaves e modelos ativos.
+- **Persistência SQLite:** Histórico completo de conversações, turnos e categorias de erros persistidos localmente no banco `coach.db`.
 
-**Imersão total em inglês.** O coach responde sempre em inglês, mesmo quando o aluno fala em português, incentivando-o a tentar se expressar na língua-alvo.
+---
 
-**Pensado para o aprendiz brasileiro.** O projeto é orientado aos desafios típicos de quem aprende inglês partindo do português: traduções literais, falsos cognatos e a insegurança de falar. A evolução planejada inclui um catálogo próprio desses padrões (veja o [Roadmap](#roadmap)).
+## 🏛️ Arquitetura do Sistema
 
-**Memória de erros.** Os erros detectados são registrados e categorizados, o que permite identificar reincidências e mostrar quais categorias aparecem com mais frequência. A prática passa a ser uma evolução mensurável.
-
-**Acessível e gratuito para começar.** A arquitetura foi desenhada para funcionar no plano gratuito da API, sem exigir cartão de crédito (veja [Custo e plano gratuito](#custo-e-plano-gratuito)).
-
-**Arquitetura preparada para crescer.** A lógica pedagógica e a base de dados são independentes da interface. O mesmo núcleo atende o terminal, a web e, futuramente, o Android.
-
-## Como o coach se comporta
-
-| Princípio | Comportamento |
-|---|---|
-| Proporção | ~80% conversa / ~20% correção gentil |
-| Foco | 1 erro corrigido por turno |
-| Idioma | 100% em inglês, mesmo se o aluno falar em português |
-| Tom | Acolhedor, encorajador, sem julgamento |
-| Objetivo | Manter o aluno falando |
-| Registro | Erros salvos para acompanhamento e detecção de reincidência |
-
-## Estado atual
-
-### Fase 1: Base por texto ✅ (em validação)
-
-| Componente | Descrição | Status |
-|---|---|---|
-| Configuração | Variáveis centralizadas e validação da chave de API na inicialização | ✅ |
-| Agente e prompts | Persona do coach, regras pedagógicas e saída estruturada (`reply` + `error_detected`) | ✅ |
-| Integração com o modelo | Chamada ao Gemini com tratamento de limite de requisições, falhas de servidor e timeouts | ✅ |
-| Persistência | SQLite com sessões, mensagens e erros | ✅ |
-| Análise de erros | Último erro e ranking de categorias mais frequentes | ✅ |
-| Interface CLI | Conversa por texto com `/help`, `/errors` e `/exit` | ✅ |
-| Testes automatizados | Suíte para armazenamento e agente, com banco em memória | ✅ |
-| Versionamento | Código versionado no GitHub | ✅ |
-| Validação com uso real | Testes de conversa e ajuste fino de prompts | 🔄 |
-
-### Fase 2: Núcleo de voz 🔄 (em desenvolvimento)
-
-| Componente | Descrição | Status |
-|---|---|---|
-| Verificação da conexão de voz | Script `scripts/check_live.py` valida chave, modelo e acesso à Live API | 🔄 |
-| Conversa por voz no terminal | Microfone → modelo de voz → alto-falante, em tempo real | 🔜 |
-
-### Comandos da CLI (texto)
-
-| Comando | Função |
-|---|---|
-| `/help` | Exibe os comandos disponíveis |
-| `/errors` | Mostra os erros da sessão e o ranking histórico de categorias |
-| `/exit` ou `/quit` | Encerra a sessão com segurança |
-
-## Arquitetura
-
-```text
-Aluno (voz)
-   │
-   ▼
-Cliente de áudio ── hoje: terminal · depois: web · depois: Android
-   │   áudio PCM 16 kHz
-   ▼
-Camada de voz (Gemini Live API, áudio para áudio)
-   │   instruções do coach + resposta falada em inglês
-   │   transcrição da fala do aluno e do coach
-   ▼
-Coach Agent  ──►  Prompts (regras pedagógicas)
-   │
-   ▼
-Análise de erros (assíncrona, sobre a transcrição)
-   │
-   ▼
-SQLite (sessões, mensagens, erros)
+```
+                  ┌──────────────────────────────────────────────┐
+                  │          Navegador Web do Aluno              │
+                  │  (AudioWorklet 16kHz + Web Audio API 24kHz)  │
+                  └──────────────────────┬───────────────────────┘
+                                         │ WebSocket Bidirecional
+                                         ▼
+                  ┌──────────────────────────────────────────────┐
+                  │            Servidor FastAPI (Async)          │
+                  │  - Roteamento e Lifecycle (Lifespan)         │
+                  │  - Supervisão de Concorrência de Tarefas     │
+                  │  - Verificação de Conexão e Safe Senders     │
+                  └──────────────┬───────────────────────────────┘
+                                 │
+        ┌────────────────────────┴────────────────────────┐
+        ▼                                                 ▼
+┌─────────────────────────────────┐      ┌─────────────────────────────────┐
+│        Gemini Live API          │      │     Camada de Armazenamento     │
+│   (Model: gemini-3.8-live /     │      │        (SQLite Local)           │
+│    Speech-to-Speech Streaming)  │      │  - Registro de Sessões          │
+│   - Transcrição Aluno & Coach   │      │  - Histórico de Turnos          │
+│   - Detecção de Interrupções    │      │  - Métricas e Categorias Erros  │
+└─────────────────────────────────┘      └─────────────────────────────────┘
 ```
 
-Pontos de design:
+---
 
-- O modelo de voz conduz a conversa. O coach corrige durante a fala, seguindo as regras pedagógicas definidas nas instruções do sistema.
-- A **transcrição** de cada turno alimenta uma análise separada, que detecta e categoriza o erro **sem interromper o diálogo**. É essa análise que alimenta o `/errors` e o histórico.
-- O cliente de áudio é uma camada substituível. Trocar o terminal pela web ou pelo Android não altera o restante.
-
-## Estrutura do projeto
+## 📂 Estrutura do Diretório
 
 ```text
-.
+Agent/
+├── data/                    # Banco de dados local SQLite (coach.db)
+├── docs/                    # Documentação detalhada e registros de evolução
+│   ├── ESPECIFICACAO.md
+│   ├── PLANO.md
+│   ├── PROMPTS.md
+│   └── TROUBLESHOOTING.md
+├── scripts/                 # Scripts utilitários de validação
+│   └── check_live.py        # Validação de conectividade com a Live API
 ├── src/
-│   ├── main.py              # Interface CLI e loop de conversa por texto
-│   ├── config.py            # Configurações e validação do ambiente
-│   ├── agent/
-│   │   ├── coach.py         # Lógica do agente e integração com o modelo
-│   │   └── prompts.py       # Persona e regras pedagógicas
-│   └── storage/
-│       ├── database.py      # Criação e conexão do banco SQLite
-│       └── repository.py    # Sessões, mensagens, erros e consultas
-├── scripts/
-│   └── check_live.py        # Verifica a conexão com a Live API (voz)
-├── tests/
-│   ├── test_storage.py      # Testes da camada de dados
-│   └── test_agent.py        # Testes do agente
-├── requirements.txt         # Dependências
-├── .env                     # Configurações locais (não versionado)
-└── .gitignore
+│   ├── agent/               # Lógica do Agente e Prompts Pedagógicos
+│   │   ├── coach.py         # Implementação do CoachAgent e parsing
+│   │   └── prompts.py       # Prompts do Coach (Live Voice & CLI)
+│   ├── storage/             # Camada de Dados SQLite
+│   │   ├── database.py      # Conexões e schemas de tabelas
+│   │   └── repository.py    # CRUD de sessões, mensagens e erros
+│   ├── web/                 # Servidor Web e Interface
+│   │   ├── server.py        # FastAPI, WebSocket e Gateway Gemini Live
+│   │   └── static/
+│   │       └── index.html   # Frontend Sci-Fi em arquivo único
+│   ├── config.py            # Validação e carregamento de configurações
+│   └── main.py              # Interface CLI (modo texto)
+├── tests/                   # Suíte de testes automatizados com Pytest
+├── .env.example             # Modelo de configuração de ambiente
+├── requirements.txt         # Dependências Python do projeto
+└── README.md                # Documentação técnica do projeto
 ```
 
-## Tecnologias
+---
 
-| Tecnologia | Função no projeto |
-|---|---|
-| **Python** | Linguagem principal |
-| **Gemini Live API** (`gemini-3.8-live`) | Conversa por voz em tempo real (áudio para áudio) |
-| **Gemini API (texto)** (`gemini-3.6-flash`) | Análise de erros, modo texto e testes |
-| **google-genai** | Biblioteca oficial para acessar a API |
-| **SQLite** | Banco de dados local para histórico e erros |
-| **pip e `requirements.txt`** | Gerenciamento de dependências |
-| **python-dotenv / `.env`** | Configuração e proteção de credenciais |
-| **Pytest** | Testes automatizados |
-| **Git e GitHub** | Controle de versão e hospedagem do código |
-| **WSL** | Ambiente Linux no Windows para o fluxo de versionamento |
+## 🛠️ Tecnologias Utilizadas
 
-Tecnologias planejadas: captura e reprodução de áudio no terminal (`sounddevice`), servidor web com WebSocket (FastAPI), cliente web instalável (PWA) e empacotamento para Android.
+| Componente | Tecnologia | Finalidade |
+|---|---|---|
+| **Linguagem** | Python 3.10+ | Linguagem central do backend e lógica de controle |
+| **Backend Web** | FastAPI & Uvicorn | Servidor assíncrono de alta performance com WebSockets |
+| **IA de Voz** | Google GenAI SDK | Conexão com Gemini Live API (*bidiGenerateContent*) |
+| **Frontend** | HTML5 / CSS3 / Vanilla JS | Interface Sci-Fi responsiva com Web Audio API e AudioWorklet |
+| **Banco de Dados** | SQLite | Persistência local e segura de mensagens, sessões e erros |
+| **Testes** | Pytest | Testes automatizados em memória para validação de lógica |
 
-## Como executar
+---
 
-### Pré-requisitos
+## ⚙️ Configuração e Execução
 
-- Python 3
-- Chave de API do Google AI Studio (conta gratuita, **sem faturamento vinculado**)
-- Microfone e fones de ouvido (recomendado, para evitar eco na conversa por voz)
-
-### 1. Clone o repositório
-
+### 1. Clonar o Repositório
 ```bash
-git clone https://github.com/SEU-USUARIO/SEU-REPOSITORIO.git
-cd SEU-REPOSITORIO
+git clone https://github.com/HenareMarcio/EnlishCoachA2-B1.git
+cd EnlishCoachA2-B1
 ```
 
-### 2. Crie e ative um ambiente virtual (recomendado)
-
-```bash
-python -m venv .venv
-```
-
-Windows (PowerShell):
-
-```powershell
-.venv\Scripts\Activate.ps1
-```
-
-Linux / macOS / WSL:
-
-```bash
-source .venv/bin/activate
-```
-
-### 3. Instale as dependências
-
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Configure o ambiente
-
-Crie um arquivo `.env` na raiz do projeto:
+### 2. Configurar Variáveis de Ambiente
+Crie um arquivo `.env` na raiz do projeto com base no `.env.example`:
 
 ```env
-GEMINI_API_KEY=SUA_CHAVE
-GEMINI_MODEL=gemini-3.6-flash
+# Chave oficial do Google AI Studio (https://aistudio.google.com/app/apikey)
+GEMINI_API_KEY=sua_chave_aqui
+
+# Modelo para o modo texto (CLI)
+GEMINI_MODEL=gemini-2.5-flash
+
+# Configurações do Modo Voz em Tempo Real (Gemini Live API)
 GEMINI_LIVE_MODEL=gemini-3.8-live
+GEMINI_API_VERSION=v1beta
+GEMINI_VOICE_NAME=Puck
 ```
 
-> Nunca versione o arquivo `.env`. Ele já está listado no `.gitignore`.
+---
 
-> Os modelos do Gemini mudam com frequência. Se algum deles for descontinuado, consulte a lista oficial em `ai.google.dev/gemini-api/docs/models` e ajuste os nomes acima.
+### 3. Execução
 
-### 5. Verifique a conexão de voz
+#### No Linux / WSL (Ubuntu):
+
+Se estiver utilizando o WSL ou Linux moderno (com proteção PEP 668):
+
+**Opção A: Com Ambiente Virtual (Recomendado):**
+```bash
+sudo apt update && sudo apt install -y python3-venv
+python3 -m venv .venv_wsl
+source .venv_wsl/bin/activate
+pip install -r requirements.txt
+uvicorn src.web.server:app --port 8000 --reload
+```
+
+**Opção B: Instalação Direta:**
+```bash
+python3 -m pip install --break-system-packages -r requirements.txt
+python3 -m uvicorn src.web.server:app --port 8000 --reload
+```
+
+#### No Windows (PowerShell ou CMD):
+```powershell
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+python -m uvicorn src.web.server:app --port 8000 --reload
+```
+
+---
+
+### 4. Acessando a Aplicação
+Abra o navegador no endereço:
+👉 **`http://localhost:8000`**
+
+1. Clique em **`▶ START`** para iniciar a prática.
+2. Permita o acesso ao microfone pelo navegador.
+3. Converse naturalmente em inglês!
+
+Para verificar o status e diagnóstico da API em tempo real:
+👉 **`http://localhost:8000/api/health`**
+
+---
+
+## 🧪 Execução de Testes Automatizados
+
+A suíte de testes cobre o armazenamento local, parsing de saídas estruturadas e consistência dos prompts:
 
 ```bash
-python scripts/check_live.py
+pytest tests/ -v
 ```
 
-Se tudo estiver certo, o script mostra uma frase de resposta do modelo de voz. Em caso de erro, ele indica o provável motivo (chave, modelo ou limite).
+---
 
-### 6. Execute o coach por texto
+## 🗺️ Roadmap de Evolução
 
-```bash
-python src/main.py
-```
+- [x] **Fase 1 (Concluída):** Agente de conversação via terminal (texto) com persistência SQLite e categorização de erros.
+- [x] **Fase 2 (Concluída):** Conversação falada em tempo real com Gemini Live API, streaming PCM bidirecional e interface Sci-Fi.
+- [x] **Fase 2.1 (Concluída):** Estabilização de áudio sem sobreposição de pacotes e regras pedagógicas de acompanhamento de assunto (*thread continuity*).
+- [ ] **Fase 3 (Em desenvolvimento):** Análise e métricas avançadas de pronúncia e relatórios de progresso do aluno.
+- [ ] **Fase 4 (Planejada):** Suporte multiplataforma (aplicativo mobile nativo para Android).
 
-ou
+---
 
-```bash
-python -m src.main
-```
+## 📄 Licença e Créditos
 
-> Para a conversa por voz, execute o projeto com o Python do **Windows** (PowerShell), e não pelo WSL, que costuma ter dificuldade para acessar microfone e som.
+Este projeto é desenvolvido com foco no ensino e capacitação tecnológica contínua.
 
-## Testes
-
-```bash
-python -m pytest tests/
-```
-
-Os testes usam um banco SQLite em memória (`:memory:`) e, portanto, não alteram o banco real nem consomem a cota da API.
-
-## Custo e plano gratuito
-
-O projeto foi pensado para rodar **sem custo** no plano gratuito do Google AI Studio:
-
-- Os modelos de voz e de texto utilizados têm camada gratuita, com limites de uso que podem mudar. Consulte os limites atuais do seu projeto no Google AI Studio.
-- Para garantir que não haja cobrança, **não vincule uma conta de faturamento** ao projeto da chave de API.
-- No plano gratuito, sessões de voz têm duração limitada. O cliente deve tratar o encerramento e a retomada da sessão.
-- Ao ultrapassar a cota gratuita, a API retorna erro de limite (429). O coach trata esse caso e informa o aluno em vez de falhar.
-
-## Privacidade e segurança
-
-- Histórico de sessões, mensagens e erros ficam armazenados **localmente**, em SQLite.
-- A chave da API fica no `.env`, que não é enviado ao repositório.
-- **Atenção:** o áudio e a transcrição das conversas são enviados à API do Gemini para gerar as respostas. No plano gratuito, os termos do Google indicam que esse conteúdo pode ser usado para melhorar os produtos da empresa. No plano pago, não. Evite compartilhar informações pessoais ou sensíveis durante a prática.
-- Em versões para Android e web, a chave da API **nunca** será embutida no aplicativo. O acesso será feito por um servidor intermediário ou por tokens temporários.
-
-## Visão para Android
-
-O objetivo é levar o coach para o celular, onde a prática por voz é mais natural. O caminho planejado, do mais simples ao mais completo:
-
-1. **Cliente web com microfone**, acessado pelo navegador do Android e instalável na tela inicial (PWA). Não exige loja de aplicativos e é gratuito.
-2. **Empacotamento como aplicativo Android** a partir do mesmo cliente web, para distribuir um APK. A publicação na Play Store é opcional e envolve taxa de desenvolvedor.
-3. **Aplicativo Android nativo**, se a experiência exigir recursos específicos do aparelho.
-
-Para isso, o núcleo (agente, prompts, banco de dados e análise de erros) é mantido separado da interface, e a comunicação com o modelo de voz passará por um servidor intermediário, que protege a chave da API.
-
-## Roadmap
-
-### Fase 1: Base por texto ✅
-- [x] Conversa em inglês via terminal
-- [x] Persistência local (SQLite)
-- [x] Registro e categorização de erros
-- [x] Testes automatizados
-- [ ] Validação com uso real e ajuste fino de prompts
-
-### Fase 2: Núcleo de voz (speech-to-speech) 🔄
-- [ ] Verificação da conexão com a Live API (`scripts/check_live.py`)
-- [ ] Conversa por voz no terminal (microfone → modelo → alto-falante)
-- [ ] Instruções do coach adaptadas à voz (80/20, um erro por vez, só inglês)
-- [ ] Transcrição de cada turno salva no banco de dados
-- [ ] Análise assíncrona de erros sobre a transcrição
-- [ ] Tratamento de limites do plano gratuito e de sessões longas
-
-### Fase 3: Cliente web 🔜
-- [ ] Servidor intermediário (FastAPI + WebSocket) que protege a chave da API
-- [ ] Página web com captura de microfone e reprodução da resposta em tempo real
-- [ ] Reaproveitamento integral do agente e do banco de dados
-- [ ] Funcionamento no navegador do Android
-
-### Fase 4: Android 🔜
-- [ ] Instalação como PWA na tela inicial
-- [ ] Empacotamento em aplicativo Android (APK)
-- [ ] Ajustes de uso em celular: fones, bloqueio de tela e economia de bateria
-
-### Fase 5: Personalização e evolução do aluno 💡
-- [ ] Níveis de conversação (do iniciante ao avançado, alinhados ao CEFR)
-- [ ] Cenários práticos: entrevista de emprego, viagem, reuniões, atendimento ao cliente
-- [ ] Catálogo de erros típicos de brasileiros (falsos cognatos, tradução literal, preposições)
-- [ ] Revisão periódica dos erros recorrentes, retomados no contexto de uma conversa
-- [ ] Painel de métricas: tempo de fala, erros por categoria, evolução semanal
-- [ ] Perfil do aluno: objetivos, interesses e tópicos preferidos
-
-### Fase 6: Pronúncia 💡
-- [ ] Feedback de pronúncia
-- [ ] Simulação de situações reais com voz contínua
-
-**Legenda:** ✅ concluído · 🔄 em andamento · 🔜 próximo · 💡 planejado
-
-## Como contribuir
-
-Sugestões, ideias e feedbacks são bem-vindos. Abra uma *issue* descrevendo o problema ou a proposta. Para contribuições de código, abra um *pull request* explicando a mudança e, quando possível, incluindo testes.
-
-## Aviso
-
-Este é um projeto experimental, parte de um processo de pesquisa e validação sobre como agentes de IA podem atuar como coaches de conversação para estudantes brasileiros de inglês.
-
-O objetivo principal não é ensinar gramática, mas ajudar pessoas a desenvolver **confiança para se comunicar em inglês** através da prática constante.
+**Propriedade e Desenvolvimento:**  
+**MHMF Technologies**  
+*Transformando o aprendizado de idiomas através da Inteligência Artificial em tempo real.*

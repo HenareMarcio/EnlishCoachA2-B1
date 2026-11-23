@@ -44,3 +44,9 @@ __pycache__/
 
 # Logs
 *.log
+
+# Backups and temporary files
+*.bak
+*.backup.*
+*.backup.html
+.venv_wsl/
