@@ -108,3 +108,39 @@ Este documento registra as atividades concluídas, decisões de arquitetura e pr
   - **Brevidade Radical**: Teto estrito de 1 a 2 frases curtas (máximo 25 palavras no total por turno) e a regra de falar menos que o aluno.
   - **Estrutura por Turno**: Reação curta (3-5 palavras) + correção sutil (se indispensável) + uma única pergunta aberta de seguimento.
   - **Protocolo de Repetição e Ajuste de Nível**: Se o aluno pedir repetição (*"What?", "Can you repeat?"*), o coach repete a mesma frase mais devagar; se o aluno travar, simplifica para vocabulário A2 imediato.
+
+---
+
+## [2026-11-23] - Otimização de Áudio, Inteligência Conversacional, Refatoração do Backend e UI Sci-Fi
+
+- **1. Resolução do Bug da Voz "Atropelada" no Frontend (`src/web/static/index.html`)**:
+  - **Diagnóstico**: Na reprodução do Web Audio API, `nextPlayTime = playbackAudioCtx.currentTime` era executado a cada chunk recebido. Como pacotes de áudio chegavam com milissegundos de intervalo, cada novo bloco iniciava no tempo presente, tocando sobreposto ao anterior e gerando uma cacofonia acelerada e ininteligível.
+  - **Correção**: `nextPlayTime` agora é inicializado estritamente na criação do contexto ou quando há silêncio real (`nextPlayTime < now`), aplicando uma margem de segurança de `+0.04s` (40 ms de jitter buffer) e agendando cada bloco subsequente de forma perfeitamente sequencial (`nextPlayTime += audioBuffer.duration`).
+  - **Buffer de Envio do Microfone**: Agrupamento de amostras do `AudioWorklet` em blocos estáveis de ~100 ms (1.600 amostras a 16 kHz), eliminando a sobrecarga de disparar centenas de micro-frames WebSocket por segundo.
+
+- **2. Evolução Pedagógica: Parceiro de Conversa vs. Chatbot Genérico (`src/agent/prompts.py`)**:
+  - **Manutenção do Fio da Conversa (*Thread Continuity*)**: O Coach foi instruído a abandonar o padrão mecânico de questionador/interrogador. Agora ele escuta, valida o ponto trazido pelo aluno e aprofunda estritamente o mesmo assunto em vez de inventar novos tópicos aleatórios.
+  - **Tratamento Especializado do "Mais" Brasileiro**: Reconhecimento de padrões típicos de estudantes brasileiros que dizem *"mais"*, *"again"*, *"repeat"*, *"what?"*, *"sorry?"*, *"como?"* ou *"não entendi"*. O coach compreende o pedido de repetição, reescreve a ideia em inglês mais simples, mantém o assunto e oferece 2 ou 3 opções concretas para ajudar o aluno a responder.
+  - **Cadência Conversacional Natural**: Ritmo estabilizado em ~130 WPM com enunciação fluida e correções discretas por reformulação (*recasting*).
+
+- **3. Refatoração Arquitetural e Resiliência do Servidor (`src/web/server.py`)**:
+  - **Lifespan Moderno**: Substituído o evento `@app.on_event("startup")` pelo context manager assíncrono `@asynccontextmanager lifespan(app: FastAPI)`.
+  - **Supervisão de Concorrência**: Implementada inspeção obrigatória de `task.exception()` para as tarefas de streaming do `asyncio.wait()`, impedindo que erros da Gemini Live API (como 400 ou 429) fiquem silenciados em segundo plano.
+  - **VAD Otimizado**: Removido o bloqueio forçado de 1.3s de silêncio morto (`silence_duration_ms=1300`), permitindo respostas rápidas com baixa latência nativa.
+  - **Safe Senders para WebSockets**: Criados os auxiliares `safe_send_json` e `safe_send_bytes` com validação de `WebSocketState.CONNECTED`, evitando exceções do Starlette por tentativas de escrita em conexões encerradas.
+  - **Seleção de Vozes (`SpeechConfig`)**: Suporte a prebuilt voices (`Puck`, `Aoede`, etc.) configurável via `GEMINI_VOICE_NAME` em `src/config.py`.
+  - **Endpoint de Saúde**: Adicionada a rota `GET /api/health` para testes rápidos de status do servidor e API key.
+
+- **4. Nova Interface Visual Sci-Fi (`src/web/static/index.html`)**:
+  - Limpeza de tags HTML de editor contaminadas (`<em>`, `<strong>`, `<br>`).
+  - Paleta de cores temática espacial escura com efeitos neon ciano (`#00e5ff`) e cartões com *glassmorphism* (efeito de vidro translúcido).
+  - Avatar robótico inteligente com animação de flutuação suave (`@keyframes float`).
+  - Substituição dos botões duplicados por um botão de controle único `▶ START` / `■ STOP`.
+  - Novo indicador visual dinâmico *"Pensando"* (`● ● ●`).
+  - Substituição dos rótulos anteriores por designações limpas e diretas: `ME` (aluno) e `COACH`.
+  - Rodapé com destaque institucional oficial: **Developed by MHMF Technologies**.
+
+- **5. Documentação Profissional e Versionamento (`README.md` e `.gitignore`)**:
+  - Atualização completa do `README.md` com tom corporativo e técnico, diagramas em ASCII do pipeline de áudio, instruções completas para Windows e Linux/WSL (tratando restrições do PEP 668) e roadmap.
+  - Adição de regras no `.gitignore` para ignorar arquivos temporários de backup (`*.bak`, `*.backup.*`) e ambientes Linux (`.venv_wsl/`).
+
